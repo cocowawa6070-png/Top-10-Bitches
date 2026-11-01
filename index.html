@@ -146,7 +146,7 @@ m.connect(lp);lp.connect(cp);lp.connect(cv);cv.connect(w);w.connect(cp);cp.conne
 if(AC.state==='suspended')AC.resume()}
 function pl(f,t,d,v){var n=AC.currentTime+t;[[1,1,1,-5],[1,.6,1,5],[2,.2,.5,0],[3,.06,.3,0]].forEach(function(p){var o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f*p[0];o.detune.value=p[3];g.gain.setValueAtTime(.0001,n);g.gain.linearRampToValueAtTime((v||.14)*p[1],n+.012);g.gain.exponentialRampToValueAtTime(.0001,n+d*p[2]);o.connect(g);g.connect(out);o.start(n);o.stop(n+d*p[2]+.05)})}
 function sfx(k,i){if(mute)return;try{ctx();var S={pop:function(){pl(SC[i==null?2:i],0,.45,.15)},up:function(){pl(SC[0],0,.5,.12);pl(SC[3],.09,.6,.12)},down:function(){pl(SC[3],0,.35,.1);pl(SC[0],.08,.5,.1)},sun:function(){[0,2,3].forEach(function(x,j){pl(SC[x],j*.09,.6,.12)})},moon:function(){[3,2,0].forEach(function(x,j){pl(SC[x]/2,j*.11,.8,.13)})},dice:function(){for(var j=0;j<5;j++)pl(SC[Math.random()*6|0],j*.055,.3,.07)},tada:function(){[0,2,3,5].forEach(function(x,j){pl(SC[x],j*.1,.9,.13)})},bonk:function(){pl(392,0,.5,.13);pl(329.63,.13,.7,.13)},del:function(){pl(261.63,0,.35,.14)},ding:function(){pl(SC[5],0,1,.12);pl(SC[3],.16,1.1,.12)},drop:function(){pl(SC[i%6],.3+i*.07,.55,.08)}};S[k]()}catch(e){}}
-var FB_URL='https://YOUR-PROJECT-default-rtdb.firebaseio.com',canD=false,AK='';try{AK=localStorage.getItem('ak')||''}catch(e){}
+var FB_URL='https://top-10-bitches-default-rtdb.firebaseio.com/',canD=false,AK='';try{AK=localStorage.getItem('ak')||''}catch(e){}
 function fbdb(){var U=FB_URL.replace(/\/$/,''),poll={},mine=0;
 function q(c){return U+'/'+c+'.json'}
 function ref(c){var f='at',dir='asc',r={};
