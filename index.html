@@ -345,7 +345,7 @@ function addMembers(s){MS=s;cards().forEach(function(c){if(c.dataset.d)c.remove(
 function boot(){
  if(!FB_URL||/YOUR-PROJECT/.test(FB_URL)){msg='الأخبار لسه متوصّلتش بقاعدة البيانات (حط لينك Firebase في FB_URL جوة الملف).';return note()}
  db=fbdb();$('#ak').hidden=false;$('#ak').textContent=AK?'🔓 خروج الأدمن':'🔑 أدمن';
- canW=true;canD=!!AK;uid=(function(){try{var x=localStorage.getItem('uid');if(!x){x=Math.random().toString(36).slice(2);localStorage.setItem('uid',x)}return x}catch(e){return ''}})();
+ canW=true;canD=!!AK;uid=(function(){try{var x=localStorage.getItem('uid');if(!x){x=Math.random().toString(36).slice(2);localStorage.setItem('uid',x)}return x}catch(e){return Math.random().toString(36).slice(2)}})();
  render();
  var to=setTimeout(function(){if(!loaded){msg='مش قادر أوصل للأخبار دلوقتي، جرّب بعد شوية.';note()}},10000),
  fail=function(){clearTimeout(to);msg='حصلت مشكلة في تحميل البيانات.';note()};
@@ -387,10 +387,19 @@ function wDraw(){var x=$('#wl').getContext('2d'),N=WN(),n=N.length,s=2*Math.PI/n
  for(var i=0;i<n;i++){x.beginPath();x.moveTo(0,0);x.arc(0,0,150,i*s,(i+1)*s);x.closePath();x.fillStyle=C[i%4];x.fill();x.stroke();x.save();x.rotate((i+.5)*s);x.fillStyle='#1c1233';x.font='700 15px Cairo,Tahoma,sans-serif';x.textAlign='right';x.fillText(N[i].split(' ')[0].slice(0,9),140,5);x.restore()}x.restore()}
 function wSpin(){if(sp)return;sp=1;sfx('dice');var s=2*Math.PI/WN().length,a0=wa0,t0=performance.now(),to=a0+Math.PI*2*(5+Math.random()*3);
  (function f(t){var k=Math.min(1,(t-t0)/4200);wa0=a0+(to-a0)*(1-Math.pow(1-k,3));wDraw();if(k<1)return requestAnimationFrame(f);sp=0;var p=((-Math.PI/2-wa0)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);$('#wr').textContent='🎉 '+($('#wq').value||'الفايز')+': '+WN()[Math.floor(p/s)];sfx('tada');confetti()})(t0)}
-function quiz(){var S=ST().filter(function(c){return /[\u0600-\u06FF]{3}/.test(c.querySelector('.bubble p').textContent)}),U=CU(),c=U?U.c:S[Math.random()*S.length|0],o=$('#qo'),
- A=ST().filter(function(x){return x!==c}).sort(function(){return Math.random()-.5}).slice(0,3).concat(c).sort(function(){return Math.random()-.5});
- $('#qq').textContent='مين قال: «'+(U?U.t:c.querySelector('.bubble p').textContent)+'»؟';o.textContent='';
- A.forEach(function(x){var b=mk('button','tab',nameOf(x));b.type='button';b.onclick=function(){if(o.dataset.d)return;o.dataset.d=1;qn++;var ok=x===c;if(ok){qs++;sfx('tada');confetti()}else{sfx('bonk');b.textContent='❌ '+b.textContent}$('#qs').textContent='النتيجة: '+num(qs)+' من '+num(qn)+(ok?'':' — الصح: '+nameOf(c));setTimeout(function(){delete o.dataset.d;quiz()},1600)};o.append(b)})}
+var qDeck=[],qLast=null;
+function qShuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.random()*(i+1)|0,t=a[i];a[i]=a[j];a[j]=t}return a}
+function qPool(){var seen={},P=[],A=ST();
+ function add(t,c){var k=t+'|'+nameOf(c);if(!t||seen[k])return;seen[k]=1;P.push({t:t,c:c,k:k})}
+ lines(CF.qz).forEach(function(l){var p=l.split('|'),t=p[0].trim(),n=(p[1]||'').trim(),c=A.filter(function(x){return nameOf(x)===n})[0];if(c)add(t,c)});
+ A.forEach(function(c){var t=c.querySelector('.bubble p').textContent.trim();if(/[\u0600-\u06FF]{3}/.test(t))add(t,c)});
+ return P}
+function qNext(){if(!qDeck.length){qDeck=qShuf(qPool());if(qDeck.length>1&&qLast&&qDeck[qDeck.length-1].k===qLast){var t=qDeck[0];qDeck[0]=qDeck[qDeck.length-1];qDeck[qDeck.length-1]=t}}
+ var x=qDeck.pop();if(x)qLast=x.k;return x}
+function quiz(){var o=$('#qo'),U=qNext();o.textContent='';delete o.dataset.d;if(!U){$('#qq').textContent='مفيش جمل كفاية للعبة لسه، ضيف أعضاء أو أسئلة من إعدادات الأدمن.';return}
+ var c=U.c,A=qShuf(ST().filter(function(x){return x!==c&&nameOf(x)!==nameOf(c)})).slice(0,3).concat(c);A=qShuf(A);
+ $('#qq').textContent='مين قال: «'+U.t+'»؟';
+ A.forEach(function(x){var b=mk('button','tab',nameOf(x));b.type='button';b.onclick=function(){if(o.dataset.d)return;o.dataset.d=1;qn++;var ok=x===c;if(ok){qs++;sfx('tada');confetti()}else{sfx('bonk');b.textContent='❌ '+b.textContent}$('#qs').textContent='النتيجة: '+num(qs)+' من '+num(qn)+(ok?'':' — الصح: '+nameOf(c));setTimeout(quiz,1600)};o.append(b)})}
 var mi=0;
 function AL(c){var m=c.querySelector('img');return G[c.dataset.o]||(m?[m.src]:[])}
 function mFill(){var m=$('#mm'),A=ST(),nk=A.map(nameOf).join('|');if(m.dataset.k!==nk){var cur=m.value;m.dataset.k=nk;m.textContent='';A.forEach(function(c,i){var o=mk('option',null,nameOf(c));o.value=i;m.append(o)});if(cur&&+cur<A.length)m.value=cur}mThumbs()}
@@ -411,7 +420,6 @@ var CF={},OV={},Q0=null,CL0=null,MS=null,DG=null,U=null;
 function lines(s){return s?String(s).split('\n').map(function(x){return x.trim()}).filter(Boolean):[]}
 function toArr(x){return Array.isArray(x)?x:x&&typeof x==='object'?Object.keys(x).map(function(k){return x[k]}):[]}
 function WN(){var o=lines(CF.wo);return o.length>1?o:ST().map(nameOf)}
-function CU(){var L=lines(CF.qz).map(function(s){var p=s.split('|');return{t:p[0].trim(),n:(p[1]||'').trim()}}).filter(function(x){return x.t&&x.n&&cards().some(function(c){return nameOf(c)===x.n})});if(!L.length)return null;var x=L[Math.random()*L.length|0];x.c=cards().filter(function(c){return nameOf(c)===x.n})[0];return x}
 function fbw(p,m,b){return tok().then(function(t){return fetch(FBU+'/'+p+'.json?auth='+encodeURIComponent(t),{method:m,body:JSON.stringify(b)})}).then(function(x){if(!x.ok)throw x.status||0;return x})}
 function eb(fn){var x=mk('button','del','✏️ عدّل');x.type='button';x.onclick=fn;return x}
 function ed(title,F,save){DG=DG||document.body.appendChild(mk('dialog'));var GR=F.some(function(f){return f.g}),d=DG,w=mk('div','edb'+(GR?' cfgp':'')),H=[mk('h3',null,title)],V={},tg=null,gn=0;d.textContent='';
