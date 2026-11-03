@@ -178,6 +178,31 @@ h1{color:transparent;background:linear-gradient(100deg,var(--a1),var(--a2) 55%,v
 .czr input[type=text],.czr input[type=file],.czr select{flex:1 1 100%;min-width:0;font:500 1rem/1.5 Cairo,Tahoma,sans-serif;padding:.4rem .7rem;background:var(--card);color:var(--text);border:2px solid var(--line);border-radius:8px}
 .czr output{flex:none;min-width:2rem;text-align:center;font-weight:700}
 .czr>button{flex:none;width:2rem;height:2rem;padding:0;font:700 1rem/1 Cairo,sans-serif;background:var(--card);color:var(--text);border:2px solid var(--line);border-radius:50%;cursor:pointer}
+/* ===== شريط الأزرار الثابت (التخصيص + إعدادات الأدمن) ===== */
+.czp,.cfgp{display:flex;flex-direction:column;border-radius:7px;padding-bottom:0}
+.czp>*,.cfgp>*{flex:none}
+.cfgp{width:min(88vw,34rem)}
+.cfgp h3{margin:0 0 .3rem;font:400 1.5rem/1.3 Lalezar,Cairo,Tahoma,sans-serif}
+.fg{border:2px solid var(--line);border-radius:10px;padding:.2rem .7rem;margin:.25rem 0}
+.fg>summary{font:700 1.1rem/1.8 Cairo,Tahoma,sans-serif;cursor:pointer}
+.fld{display:grid;grid-template-columns:minmax(0,1fr);gap:.35rem;margin:.5rem 0 1rem}
+.fld>*{min-width:0}
+.fld,.fld *{box-sizing:border-box}
+.fld .hint{line-height:1.5}
+.fld input,.fld textarea{padding:.65rem .8rem;border-radius:10px;background:color-mix(in srgb,var(--text) 7%,var(--card))}
+.fld textarea{min-height:7.5rem;line-height:1.7}
+.fld input:focus-visible,.fld textarea:focus-visible{outline:3px solid var(--hl);outline-offset:1px}
+.cc{justify-self:end;font-size:.75rem;opacity:.7}
+.sbar{position:sticky;bottom:0;z-index:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;margin:.6rem -1rem 0;padding:.7rem 1rem;background:var(--card);border-top:3px solid var(--line)}
+.sbar .tab{display:flex;align-items:center;justify-content:center;min-height:2.7rem;padding:.4rem .5rem;font-size:.85rem;line-height:1.3;text-align:center;border-width:2px;border-radius:12px;box-shadow:2px 2px 0 var(--line)}
+.sbar .pri{grid-column:1/-1;min-height:3rem;font-size:1.1rem;background:var(--hl);color:#1c1233;border-width:3px;border-radius:999px;box-shadow:4px 4px 0 var(--line)}
+.sbar .tab:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--line)}
+.sbar .tab:disabled{opacity:.6;cursor:default}
+.sbar .note{grid-column:1/-1;margin:0;font-size:.9rem}
+.sbar .note:empty{display:none}
+.fb{grid-template-columns:2fr 1fr}
+.fb .pri{grid-column:auto}
+@media (max-height:520px){.sbar{position:static}}
 </style>
 </head>
 <body>
@@ -389,20 +414,22 @@ function WN(){var o=lines(CF.wo);return o.length>1?o:ST().map(nameOf)}
 function CU(){var L=lines(CF.qz).map(function(s){var p=s.split('|');return{t:p[0].trim(),n:(p[1]||'').trim()}}).filter(function(x){return x.t&&x.n&&cards().some(function(c){return nameOf(c)===x.n})});if(!L.length)return null;var x=L[Math.random()*L.length|0];x.c=cards().filter(function(c){return nameOf(c)===x.n})[0];return x}
 function fbw(p,m,b){return tok().then(function(t){return fetch(FBU+'/'+p+'.json?auth='+encodeURIComponent(t),{method:m,body:JSON.stringify(b)})}).then(function(x){if(!x.ok)throw x.status||0;return x})}
 function eb(fn){var x=mk('button','del','✏️ عدّل');x.type='button';x.onclick=fn;return x}
-function ed(title,F,save){DG=DG||document.body.appendChild(mk('dialog'));var d=DG,w=mk('div','edb'),H=[mk('h3',null,title)],V={};d.textContent='';
- F.forEach(function(f){H.push(mk('label',null,f.l));
+function ed(title,F,save){DG=DG||document.body.appendChild(mk('dialog'));var GR=F.some(function(f){return f.g}),d=DG,w=mk('div','edb'+(GR?' cfgp':'')),H=[mk('h3',null,title)],V={},tg=null,gn=0;d.textContent='';
+ F.forEach(function(f){var fw=null;if(f.g){if(!tg||tg.dataset.g!==f.g){tg=mk('details','fg');tg.dataset.g=f.g;tg.append(mk('summary',null,f.g));if(!gn++)tg.open=true;H.push(tg)}fw=mk('div','fld');tg.append(fw)}
+  var put=function(){var a=[].slice.call(arguments);if(fw)fw.append.apply(fw,a);else H.push.apply(H,a)};
+  put(mk('label',null,f.l));if(f.h)put(mk('span','hint',f.h));
   if(f.t==='p'){var P=toArr(f.v).slice(),box=mk('div','pv'),fi=mk('input');fi.type='file';fi.accept='image/*';fi.multiple=true;
    var dr=function(){box.textContent='';fi.hidden=P.length>=6;P.forEach(function(s,k){var sp=mk('span'),im=mk('img'),x=mk('button',null,'×');im.src=s;im.alt='';x.type='button';x.setAttribute('aria-label','شيل الصورة');x.onclick=function(){P.splice(k,1);dr()};sp.append(im,x);box.append(sp)})};
    fi.onchange=function(){Promise.all([].slice.call(fi.files).slice(0,6-P.length).map(function(x){return shrink(x).then(function(u){P.push(u)},function(){})})).then(function(){fi.value='';dr()})};
-   dr();V[f.k]=function(){return P};H.push(box,fi)}
-  else{var e=mk(f.t==='a'?'textarea':'input');e.value=f.v||'';e.maxLength=f.m||300;V[f.k]=function(){return e.value.trim()};H.push(e)}});
- var sv=mk('button','tab','💾 احفظ'),cx=mk('button','tab','إلغاء'),m=mk('p','note');sv.type=cx.type='button';cx.onclick=function(){d.close()};
+   dr();V[f.k]=function(){return P};put(box,fi)}
+  else{var e=mk(f.t==='a'?'textarea':'input');e.value=f.v||'';e.maxLength=f.m||300;if(f.p)e.placeholder=f.p;V[f.k]=function(){return e.value.trim()};put(e);if(fw){var cc=mk('span','cc'),up=function(){cc.textContent=num(e.value.length)+' / '+num(e.maxLength)};e.addEventListener('input',up);up();put(cc)}}});
+ var sv=mk('button',GR?'tab pri':'tab','💾 احفظ'),cx=mk('button','tab','إلغاء'),m=mk('p','note');sv.type=cx.type='button';cx.onclick=function(){d.close()};
  sv.onclick=function(){var o={};for(var k in V)o[k]=V[k]();sv.disabled=true;m.textContent='';Promise.resolve().then(function(){return save(o)}).then(function(){sfx('tada');d.close()},function(e){sv.disabled=false;sfx('bonk');m.textContent=e===401||e===403?'مرفوض: اتأكد من مفتاح الأدمن ومن قواعد Firebase.':'ماتحفظش، اتأكد إن البيانات كاملة وجرّب تاني.'})};
- w.append.apply(w,H.concat([m,sv,cx]));d.append(w);d.showModal()}
+ if(GR){var ft=mk('div','sbar fb');ft.append(m,sv,cx);w.append.apply(w,H.concat([ft]))}else w.append.apply(w,H.concat([m,sv,cx]));d.append(w);d.showModal()}
 function applyCfg(){Q0=Q0||Q;CL0=CL0||CL;var a=lines(CF.q),b=lines(CF.ev);Q=a.length?a:Q0;CL=b.length?b:CL0;if(CF.wq&&!$('#wq').value)$('#wq').value=CF.wq;tick();wDraw();drawC();if(st.f==='poll')drawPoll()}
 function applyOv(){ST().forEach(function(c){var i=c.dataset.o,o=OV['s'+i];if(!o)return;c.querySelector('h2').firstChild.textContent=o.n||nameOf(c);c.querySelector('.job').lastChild.textContent=o.j||'';c.querySelector('.bubble p').textContent=o.q||'';
  var P=toArr(o.p).filter(function(x){return typeof x==='string'});if(P.length){var m=c.querySelector('img'),k=c.querySelector('.cnt');m.src=P[0];m.alt=o.n||m.alt;if(P.length>1){G[i]=P;if(!k){k=mk('span','cnt');c.append(k)}k.textContent='📷 '+num(P.length)}else{delete G[i];if(k)k.remove()}}})}
-function openCfg(){ed('إعدادات الأدمن',[{k:'tk',l:'شريط عاجل (فاضي = آخر ٣ أخبار، وكتابة - تخفيه)',v:CF.tk,m:200},{k:'wq',l:'سؤال عجلة الحظ',v:CF.wq,m:30},{k:'wo',l:'اختيارات العجلة (كل سطر اختيار، فاضي = أسماء الأعضاء)',v:CF.wo,t:'a',m:600},{k:'qa',l:'سؤال التصويت الحالي (فاضي = بيتبدل كل أسبوع)',v:CF.qa,m:80},{k:'q',l:'أسئلة التصويت (كل سطر سؤال)',v:CF.q,t:'a',m:600},{k:'ev',l:'أحداث العدّادات (كل سطر لعضو بالترتيب)',v:CF.ev,t:'a',m:800},{k:'qz',l:'أسئلة «مين قالها؟» (الجملة | اسم العضو، سطر لكل سؤال)',v:CF.qz,t:'a',m:1000}],function(o){return fbw('cfg','PUT',o).then(function(){CF=o;applyCfg()})})}
+function openCfg(){ed('إعدادات الأدمن',[{k:'tk',g:'📰 الشريط العاجل',l:'نص الشريط',h:'فاضي = آخر ٣ أخبار. اكتب شرطة (-) لو عايز تخفيه.',v:CF.tk,m:200},{k:'wq',g:'🎡 عجلة الحظ',l:'سؤال العجلة',v:CF.wq,m:30},{k:'wo',g:'🎡 عجلة الحظ',l:'اختيارات العجلة',h:'كل اختيار في سطر. فاضي = أسماء الأعضاء.',v:CF.wo,t:'a',m:600},{k:'qa',g:'🗳️ التصويت',l:'سؤال التصويت الحالي',h:'فاضي = بيتبدل كل أسبوع.',v:CF.qa,m:80},{k:'q',g:'🗳️ التصويت',l:'أسئلة التصويت',h:'كل سؤال في سطر.',v:CF.q,t:'a',m:600},{k:'ev',g:'🎮 ألعاب وعدّادات',l:'أحداث العدّادات',h:'سطر لكل عضو، بنفس ترتيب الأعضاء.',v:CF.ev,t:'a',m:800},{k:'qz',g:'🎮 ألعاب وعدّادات',l:'أسئلة «مين قالها؟»',h:'كل سؤال في سطر بالشكل ده: الجملة | اسم العضو',v:CF.qz,t:'a',m:1000,p:'الجملة | اسم العضو'}],function(o){return fbw('cfg','PUT',o).then(function(){CF=o;applyCfg()})})}
 if(canD){var sb=mk('button','tab','⚙️ إعدادات الأدمن');sb.type='button';sb.onclick=openCfg;$('#ak').after(sb);
  ST().forEach(function(c){var i=c.dataset.o;c.querySelector('.body').append(eb(function(){var m=c.querySelector('img');ed('تعديل العضو',[{k:'n',l:'الاسم',v:nameOf(c),m:30},{k:'j',l:'الوظيفة',v:c.querySelector('.job').lastChild.textContent,m:80},{k:'q',l:'أشهر جملة',v:c.querySelector('.bubble p').textContent,m:80},{k:'p',l:'الصور (لازم صورة على الأقل)',t:'p',v:G[i]||[m.src]}],function(o){if(!o.n||!o.p.length)throw 0;return fbw('ov/s'+i,'PUT',o).then(function(){OV['s'+i]=o;applyOv();render()})})}))})}
 fetch(FBU+'/cfg.json').then(function(r){return r.json()}).then(function(j){CF=j&&!j.error?j:{};applyCfg()}).catch(function(){});
@@ -502,7 +529,7 @@ function ctl(it){var k=it[0],t=it[1],r=mk('div','czr'),l=mk('span',null,it[2]),i
  else{i=mk('input');i.type='file';i.accept='image/*';sync=function(){i.value=''};i.onchange=function(){var f=i.files[0];if(!f)return;czShrink(f,1400).then(function(u){CI=u;czImgSave()},function(){alert('الصورة ماتقراتش، جرّب JPG أو PNG.')})}}
  rs.onclick=function(){if(t==='f'){CI='';czImgSave()}else{delete CZ[k];czSave()}sync()};
  sync();r.append(l);if(o)r.append(i,o);else r.append(i);r.append(rs);return r}
-function openCz(){var d=mk('dialog'),w=mk('div','edb czp'),bar=mk('div','czr'),rs=mk('button','tab','↩️ رجّع الأصل'),ex=mk('button','tab','📋 انسخ إعداداتي'),im=mk('button','tab','📥 استيراد'),cl=mk('button','tab','تمام');
+function openCz(){var d=mk('dialog'),w=mk('div','edb czp'),bar=mk('div','sbar'),rs=mk('button','tab','↩️ رجّع الأصل'),ex=mk('button','tab','📋 انسخ إعداداتي'),im=mk('button','tab','📥 استيراد'),cl=mk('button','tab pri','تمام');
  w.append(mk('h3',null,'🎨 تخصيص الموقع (ليك إنت بس)'),mk('p','hint','كل اللي تغيّره هنا بيظهر عندك بس، وبيتحفظ في متصفحك. زرار ↺ يرجّع العنصر ده للأصل. لو غيّرت لون الكتابة غيّر لون الصناديق معاه عشان الكلام يفضل باين.'));
  SC.forEach(function(s,n){var dt=mk('details'),sm=mk('summary',null,s[0]);dt.append(sm);if(!n)dt.open=true;s[1].forEach(function(it){dt.append(ctl(it))});w.append(dt)});
  [rs,ex,im,cl].forEach(function(b){b.type='button';bar.append(b)});
